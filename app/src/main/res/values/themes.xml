@@ -1,0 +1,23 @@
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<resources>-->
+
+<!--    <style name="Theme.KALENJINHYMNBOOK" parent="android:Theme.Material.Light.NoActionBar" />-->
+<!--</resources>-->
+
+
+<!-- res/values/styles.xml -->
+<resources>
+    <!-- Base application theme -->
+    <style name="Theme.MyApp" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Your app's normal theme properties -->
+    </style>
+
+    <!-- Splash screen theme -->
+    <style name="Theme.MyApp.Splash" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Set window background to match your splash screen -->
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <!-- Optional: Remove status/navigation bar color flicker -->
+        <item name="android:statusBarColor">@color/Cyan</item>
+        <item name="android:navigationBarColor">@color/Cyan</item>
+    </style>
+</resources>

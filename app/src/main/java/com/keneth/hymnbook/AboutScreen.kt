@@ -68,8 +68,8 @@ fun AboutScreen(
                 AppDrawer(
                     drawerState,
                     scope,
-                    onItemClick = { route -> navController.navigate(route) },
-                    currentRoute = currentRoute
+                    onItemClick = { route -> navController.navigate(route) }
+
 
                 )
             }

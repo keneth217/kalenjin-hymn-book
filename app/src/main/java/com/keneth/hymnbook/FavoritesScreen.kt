@@ -64,7 +64,7 @@ fun FavoriteScreen(navController: NavHostController) {
             ModalDrawerSheet {
                 AppDrawer(
                     drawerState, scope,
-                    onItemClick = { route -> navController.navigate(route) }, currentRoute
+                    onItemClick = { route -> navController.navigate(route) }
                 )
             }
         }

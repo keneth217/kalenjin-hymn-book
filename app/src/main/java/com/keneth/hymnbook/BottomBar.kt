@@ -44,11 +44,7 @@ fun BottomNavBar(navController: NavController, currentRoute: String) {
             val isSelected = currentRoute == item.route
             BottomNavigationItem(
                 selected = isSelected,
-                onClick = {
-                    if (currentRoute != item.route) {
-                        navController.navigate(item.route)
-                    }
-                },
+                onClick = { navController.navigate(item.route) },
                 icon = {
                     Icon(
                         imageVector = item.icon,

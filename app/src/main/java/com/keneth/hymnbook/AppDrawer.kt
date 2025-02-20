@@ -1,6 +1,8 @@
 package com.keneth.hymnbook
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -24,7 +26,7 @@ fun AppDrawer(
     drawerState: DrawerState,
     scope: CoroutineScope,
     onItemClick: (String) -> Unit, // Add click handler
-    currentRoute: String // Pass the current route to handle selection
+
 ) {
     val drawerScreens = listOf(
         Screens.HymnScreen,
@@ -40,22 +42,32 @@ fun AppDrawer(
     ) {
         item {
             Column(
-                modifier = Modifier.padding(16.dp).background(Color.Green)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .background(Color.Green)
             ) {
                 Spacer(Modifier.height(12.dp))
-                Text("Menu",
-                    Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyLarge)
-
+                Row(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .background(Color.Green)
+                        .fillMaxSize()
+                        .height(56.dp)
+                ) {
+                    Text(
+                        "Menu",
+                        Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.displayLarge
+                    )
+                }
                 HorizontalDivider()
             }
         }
         items(drawerScreens) { screen ->
             NavigationDrawerItem(
-
                 modifier = Modifier.padding(10.dp),
-                label = { Text(screen.title ?: "Unnamed") },
-                selected = currentRoute == screen.route,
+                label = { Text(screen.title!!, style = MaterialTheme.typography.bodyLarge) },
+                selected = false,
                 onClick = {
                     scope.launch { drawerState.close() }
                     onItemClick(screen.route)

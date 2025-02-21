@@ -37,7 +37,9 @@ fun TopBar(scope: CoroutineScope, drawerState: DrawerState, title: String, onBot
         },
         actions = {
             IconButton(onClick = onBottomSheetOpen) {
-                Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Open Bottom Modal Sheet")
+                Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Open Bottom Modal Sheet", tint = Color.White)
+                //button color
+
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(

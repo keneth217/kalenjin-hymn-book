@@ -46,11 +46,19 @@ dependencies {
     implementation ("androidx.compose.material:material:1.5.0")
     implementation("androidx.compose.material:material:1.7.7")
     implementation ("androidx.graphics:graphics-shapes:1.0.1")
+    implementation(libs.androidx.navigation.runtime.ktx)
+//swipe to refresh
+
+        implementation ("com.google.accompanist:accompanist-swiperefresh:0.36.0")// Check for the latest version
+    
 
 
-    val nav_version = "2.8.6"
     val lifecycle_version = "2.8.7"
     val retrofit_version = "2.9.0"
+
+    val nav_version = "2.8.7"
+
+    implementation("androidx.navigation:navigation-compose:$nav_version")
 
     // Jetpack Navigation Compose
     implementation("androidx.navigation:navigation-compose:$nav_version")

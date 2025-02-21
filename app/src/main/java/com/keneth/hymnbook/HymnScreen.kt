@@ -17,12 +17,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
+
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +37,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 
 @Composable
@@ -56,8 +60,8 @@ fun HymnScreen(
             allHymns
         } else {
 
-//            searchHymns
-            HymnRepository.searchHymns(searchQuery.value)
+           searchHymns
+//            HymnRepository.searchHymns(searchQuery.value)
             allHymns.filter { hymn ->
                 hymn.number.toString().contains(searchQuery.value, ignoreCase = true) ||
                         hymn.title.contains(searchQuery.value, ignoreCase = true)
@@ -71,7 +75,7 @@ fun HymnScreen(
             ModalDrawerSheet {
                 AppDrawer(
                     drawerState, scope,
-                    onItemClick = { route -> navController.navigate(route) }
+                    onItemClick = { route -> navController.navigate(route)}
                 )
             }
         }
@@ -105,7 +109,13 @@ fun HymnScreen(
                         modifier = Modifier.padding(16.dp)
                     )
                 } else {
-                    HymnListScreen(navController, filteredHymns)
+                     //
+                    HymnListScreen(navController, filteredHymns,
+                        //allHymns
+                        modifier = Modifier.weight(1f),
+                        isRefreshing = false,
+                        onRefresh = {}
+                    )
                 }
 
             }
@@ -116,20 +126,43 @@ fun HymnScreen(
 @Composable
 fun HymnListScreen(
     navController: NavController,
-    hymns: List<Hymn>
+    hymns: List<Hymn>,
+    modifier: Modifier = Modifier,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
+
+    SwipeRefresh(
+        state = swipeRefreshState,
+        onRefresh = onRefresh,
+        modifier = modifier
     ) {
-        items(hymns) { hymn ->
-            HymnListItem(hymn = hymn, onItemClick = {
-                navController.navigate("${Screens.HymnDetailScreen.route}/${hymn.number}")
-            })
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+        )
+        {
+           if (isRefreshing) {
+                item {
+                    Text(
+                        text = "Refreshing...",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+            items(hymns) { hymn ->
+                HymnListItem(hymn) {
+                    navController.navigate("${Screens.HymnDetailScreen.route}/${hymn.number}")
+                }
+            }
         }
     }
 }
+
 
 @Composable
 fun HymnListItem(hymn: Hymn, onItemClick: () -> Unit) {

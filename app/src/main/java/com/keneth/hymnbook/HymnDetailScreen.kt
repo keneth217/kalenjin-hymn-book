@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -45,23 +46,23 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import kotlin.math.roundToInt
 
-@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HymnDetailScreen(
     hymnNumber: Int,
-    navController: NavHostController
+    navController: NavController
 ) {
     val hymn = remember(hymnNumber) { HymnRepository.getHymnByNumber(hymnNumber) }
-//    val isFavorite by mutableStateOf(true)
+    var fontSize by remember { mutableStateOf(20.sp) }
+    var showDialog by remember { mutableStateOf(false) }
+    var sliderPosition by remember { mutableFloatStateOf(fontSize.value) }
+    var isFavourite by remember { mutableStateOf(hymn?.isFavourite ?: false) }
+    val context = LocalContext.current
 
-    var fontSize by remember { mutableStateOf(20.sp) } // Default font size
-    var showDialog by remember { mutableStateOf(false) } // To control dialog visibility
-
-    var sliderPosition by remember { mutableFloatStateOf(fontSize.value)}
-        val context = LocalContext.current
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -69,41 +70,28 @@ fun HymnDetailScreen(
                     Text(
                         hymn?.title ?: "",
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = Color.White
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
                     IconButton(onClick = { showDialog = true }) {
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "Adjust text size")
+                    }
+                    IconButton(onClick = { isFavourite = !isFavourite }) {
                         Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Adjust text size"
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Add to favorites",
+                            tint = if (isFavourite) Color.Red else MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
-                    IconButton(onClick = {
-
-                        if (hymn != null) {
-                            hymn.isFavourite = !hymn.isFavourite
-                        }
-                    }) {
-                        if (hymn != null) {
-                            Icon(
-                                imageVector = Icons.Default.Favorite,
-                                contentDescription = "Add to favorites",
-                                tint = if (hymn.isFavourite) Color.Red else MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
-                    }
                     Spacer(Modifier.width(8.dp))
-
-
                     IconButton(onClick = {
                         val shareText = buildString {
                             append("${hymn?.number}: ${hymn?.title}\n\n")
@@ -114,20 +102,14 @@ fun HymnDetailScreen(
                                 append("Chorus:\n${hymn?.chorus}\n")
                             }
                         }
-
                         val shareIntent = Intent(Intent.ACTION_SEND).apply {
                             type = "text/plain"
                             putExtra(Intent.EXTRA_TEXT, shareText)
                         }
-
                         context.startActivity(Intent.createChooser(shareIntent, "Share Hymn"))
                     }) {
-                        Icon(
-                            imageVector = Icons.Default.Share,
-                            contentDescription = "Share hymn"
-                        )
+                        Icon(imageVector = Icons.Default.Share, contentDescription = "Share hymn")
                     }
-
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -150,14 +132,12 @@ fun HymnDetailScreen(
                     color = Color(0xFFFFA500),
                     modifier = Modifier.padding(16.dp)
                 )
-
                 safeHymn.stanzas.forEachIndexed { index, stanza ->
                     Text(
                         text = "${index + 1}. $stanza",
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        fontSize = fontSize // Apply dynamic font size
+                        fontSize = fontSize
                     )
-
                     if (index == 0 && safeHymn.chorus.isNotEmpty()) {
                         Text(
                             text = safeHymn.chorus,
@@ -170,7 +150,7 @@ fun HymnDetailScreen(
                                 )
                                 .padding(8.dp),
                             fontStyle = FontStyle.Italic,
-                            fontSize = fontSize // Apply dynamic font size
+                            fontSize = fontSize
                         )
                     }
                 }
@@ -181,11 +161,28 @@ fun HymnDetailScreen(
             }
         }
     }
-    // Dialog to change font size
 
+    FontSizeDialog(
+        showDialog = showDialog,
+        onDismissRequest = { showDialog = false },
+        sliderPosition = sliderPosition,
+        onSliderValueChange = {
+            sliderPosition = it
+            fontSize = it.roundToInt().sp
+        }
+    )
+}
+
+@Composable
+private fun FontSizeDialog(
+    showDialog: Boolean,
+    onDismissRequest: () -> Unit,
+    sliderPosition: Float,
+    onSliderValueChange: (Float) -> Unit
+) {
     if (showDialog) {
         AlertDialog(
-            onDismissRequest = { showDialog = false },
+            onDismissRequest = onDismissRequest,
             title = { Text("Adjust Text Size") },
             text = {
                 Column {
@@ -193,11 +190,8 @@ fun HymnDetailScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Slider(
                         value = sliderPosition,
-                        onValueChange = {
-                            sliderPosition = it
-                            fontSize = it.sp
-                        },
-                        valueRange = 14f..40f, // Set a meaningful range
+                        onValueChange = onSliderValueChange,
+                        valueRange = 14f..30f,
                         steps = 10,
                         colors = SliderDefaults.colors(
                             thumbColor = MaterialTheme.colorScheme.secondary,
@@ -208,13 +202,12 @@ fun HymnDetailScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showDialog = false }) {
+                TextButton(onClick = onDismissRequest) {
                     Text("Done")
                 }
             }
         )
     }
-
 }
 
 

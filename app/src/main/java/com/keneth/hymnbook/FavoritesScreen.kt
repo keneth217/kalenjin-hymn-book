@@ -38,7 +38,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 
 @Composable
-fun FavoriteScreen(navController: NavHostController) {
+fun FavoriteScreen(navController: NavController) {
 
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)

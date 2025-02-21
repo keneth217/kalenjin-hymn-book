@@ -1,14 +1,13 @@
 package com.keneth.hymnbook
 
 
-
-
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.BottomNavigation
 //noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.BottomNavigationItem
+
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -26,6 +25,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
+
 @Composable
 fun BottomNavBar(navController: NavController, currentRoute: String) {
     val items = listOf(
@@ -37,30 +37,49 @@ fun BottomNavBar(navController: NavController, currentRoute: String) {
 
     BottomNavigation(
         backgroundColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        modifier = Modifier.fillMaxWidth().height(56.dp)
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
     ) {
         items.forEach { item ->
             val isSelected = currentRoute == item.route
             BottomNavigationItem(
                 selected = isSelected,
-                onClick = { navController.navigate(item.route) },
+                onClick = {
+                    // Only navigate if the item is not already selected
+                    if (!isSelected) {
+                        navController.navigate(item.route) {
+                            // Avoid multiple copies of the same destination in the back stack
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            // Restore state when reselecting a previously selected item
+                            restoreState = true
+                        }
+                    }
+                },
                 icon = {
                     Icon(
                         imageVector = item.icon,
                         contentDescription = item.label,
-                        tint = if (isSelected) Color.Green else MaterialTheme.colorScheme.onPrimaryContainer
+                        tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimary.copy(
+                            alpha = 0.6f
+                        )
                     )
                 },
                 label = {
                     Text(
                         text = item.label,
-                        color = if (isSelected) Color.Green else MaterialTheme.colorScheme.onPrimaryContainer
+                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimary.copy(
+                            alpha = 0.6f
+                        )
                     )
                 },
-                selectedContentColor = Color.Green,
-                unselectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                selectedContentColor = MaterialTheme.colorScheme.onPrimary, // Selected color
+                unselectedContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
             )
+            // Unselected color
         }
     }
 }
